@@ -11,9 +11,27 @@
 |
 */
 
+
 Route::get('/', function () {
     return view('index');
 });
+
+// Calenar view - Arwa 
+Route::resource('/calendarView', 'facilityBookingController');
+//Route::get('/facilitybookings', 'facilityBookingController@index');
+//Route::get('/calendarView/{id}', 'facilityBookingController@getInfo');
+Route::post('/ajaxss',function(){
+    $facility_id=Input::get('facility_id');
+    $calendar= 5;//=facilitybooking::where('facilityId','=',$facility_id)->get();
+    //return view ('calendarView', compact('bookings','calendar'));
+   // return ("hi arwa ");// view('personal');
+   return \Response::jsan($calendar);
+
+});
+
+Route::post('/ajax', 'facilityBookingController@ajaxa')->name('test.ajax');
+
+// FrontEnd - william
 Route::get('/personal', function () { return view('personal');});
 Route::get('/facilities', function () { return view('facilities');});
 Route::get('/courses', function () { return view('courses');});
