@@ -36,6 +36,7 @@ class UserController extends Controller
 
     function login(Request $request)
     {
+      //  dd($request->all());
         $email = $request->get('email');
         $password = $request->get('password');
         if (Auth::guard('user')->attempt(['email' => $email, 'password' => $password], $request->get('online'))) {
@@ -83,7 +84,8 @@ class UserController extends Controller
     {
         if (count(User::where('email', '=', Input::get('email'))->get())) {
             $to = Input::get('email');
-            Mail::raw("Click http://www.team.com/retrievepassword?email=$to retrieve password", function ($message) use ($to) {
+            $url=config('app')['url'];
+            Mail::raw("点击链接 $url/retrievepassword?email=$to 重置密码", function ($message) use ($to) {
                 $message->to($to)->subject('SoftwareTeam4');
             });
             $err = Mail::failures();
