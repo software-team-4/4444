@@ -5,7 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use MaddHatter\LaravelFullcalendar\Facades\Calendar;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Input;
 use App\facilityBooking;
+use App\blookedperiod;
 
 class facilityBookingController extends Controller
 {
@@ -18,8 +22,9 @@ class facilityBookingController extends Controller
     public function index()
     {
         // Arwa
-        $id=2;
-         $bookings = facilitybooking::where('facilityId','=',$id)->get(); // facilitybooking::all(); // table name in the calendarviewmodel
+       // $id=2;
+         $bookings =  facilitybooking::all(); // table name in the calendarviewmodel
+        // $blockeds= bloockedperiod::all();
     
         $booking = [];
         foreach($bookings as $row){
@@ -36,58 +41,71 @@ class facilityBookingController extends Controller
             );
         }
        $calendar = \Calendar::addEvents($booking);
-        return view ('calendarView', compact('bookings','calendar'));
-       
-       
-       
+        return view ('calendarView', compact('bookings','calendar'));  
     }
 
-    // Arwa 
-    public function ajaxa(Request $request)
-        {
-            
-          // getFacilityCalendar($request);
-            $id = $request['id'];
-            $bookings = facilitybooking::where('facilityId','=',$id)->get(); 
-            $booking = [];
-            foreach($bookings as $row){
-                $enddate=$row->end_date."24:00:00";
-                $booking[] = \Calendar::event( 
-                $row->title,
-                false, // to get time not just date so can be shown in calender for specific hours
-                new \DateTime($row->start_date),
-                new \DateTime($row->end_date),
-                $row->id,
-                [
-                    'color'=>$row->color,
-                ]
-                );
-            }
-            $calendar = \Calendar::addEvents($booking);
-          //  return redirect ('calendarView', compact('bookings','calendar'));
-         // return view ('calendarView', compact('bookings','calendar'));
-         //return \Response::jsan($bookings);
-        // $result=" {!! $calendar->calendar()!!}{!! $calendar->script()!!}";
-       // $a = " {!! $calendar->calendar()!!}{!! $calendar->script()!!}";
-         return response()->json(array('success'=>true, compact('bookings','calendar')));
-         //return response()->json(array('success'=>true, 'id'=>$id));
+   // Arwa 
+   public function viewCalendar($id)
+   {
+       $facid=$id;
+       if ($facid<2||$facid>5)// return all bookings
+       {
+        $bookings =  facilitybooking::all();
+        $blookeds =DB::table('bloockedperiods')->get();
+       }
+       else{
+        $bookings =  facilitybooking::where('facilityId','=',$facid)->get();
+        $blookeds =DB::table('bloockedperiods')->where(['facilityID'=>$facid])->get();
+       }
+       $booking = [];
+       //retrive from blokedperiods table color=black 
+       $title = "blokedPeriod";
+       foreach ($blookeds as $row) {
+        $enddate=$row->end_date."24:00:00";
+        $booking[] = \Calendar::event( 
+        $title,
+        false, // to get time not just date so can be shown in calender for specific hours
+        new \DateTime($row->start_date),
+        new \DateTime($row->end_date),
+        $row->id,
+        [
+            'color'=>'black',
+        ]
+        );
+       }
          
-        
-        }
-    
+       //retrive from facilitybooking table
+       // change the color of booking depends on the facility id 
+       $color='black';
+       if ($facid ==2){
+        $color='blue';
+       }
+       else if ($facid ==3){
+        $color='yellow';
+       }
+       else if ($facid ==4){
+        $color='red';
+       }
+       else if ($facid ==5){
+        $color='green';
+       }
 
-    // refresh calender debends on the option from the list 
-    public function getFacilityCalendar(Request $request)
-     {
-       /* $bookings = facilitybooking::where ('facilityId',id);
-         if($id == 0) {// all calendare
-         }
-         if($id == 1) {// Squash courts 
-         }*/
-        return view ('/facilities');
-        //$fill = \DB::table('facilitybookings')->where('facilityId', $id)->pluck('facilityId');
-       // return Response::json(['success'=>true, 'info'=>$fill]);
-    }
+        foreach($bookings as $row){
+            $enddate=$row->end_date."24:00:00";
+            $booking[] = \Calendar::event( 
+            $row->title,
+            false, // to get time not just date so can be shown in calender for specific hours
+            new \DateTime($row->start_date),
+            new \DateTime($row->end_date),
+            $row->id,
+            [
+                'color'=>$color,
+            ]
+            );
+        }
+    $calendar = \Calendar::addEvents($booking);
+        return view ('bookingsCalendar', compact('bookings','calendar')); 
+   }
 
     /**
      * Show the form for creating a new resource.
