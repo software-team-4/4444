@@ -17,6 +17,8 @@ class PersonalController extends Controller
         if (Auth::guard('user')->user()->type == '1') {
             $facdata = Facility::all();
             $sessdata = TrainerSession::all();
+        }elseif (Auth::guard('user')->user()->type == '2'){
+            $sessdata = TrainerSession::all();
         }
         return view('personal', compact('facdata','sessdata'));
     }

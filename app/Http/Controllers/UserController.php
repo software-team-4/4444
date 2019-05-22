@@ -39,6 +39,7 @@ class UserController extends Controller
       //  dd($request->all());
         $email = $request->get('email');
         $password = $request->get('password');
+
         if (Auth::guard('user')->attempt(['email' => $email, 'password' => $password], $request->get('online'))) {
             return redirect('/');
         } else {
@@ -63,6 +64,7 @@ class UserController extends Controller
             $user->password = bcrypt($data['password']);
         }
         $user->name = $data['name'];
+        $user->phone = $data['phone'];
         if ($user->save()) {
             Auth::guard('user')->logout();
             return redirect('login');
@@ -85,8 +87,8 @@ class UserController extends Controller
         if (count(User::where('email', '=', Input::get('email'))->get())) {
             $to = Input::get('email');
             $url=config('app')['url'];
-            Mail::raw("点击链接 $url/retrievepassword?email=$to 重置密码", function ($message) use ($to) {
-                $message->to($to)->subject('SoftwareTeam4');
+            Mail::raw("Click $url/retrievepassword?email=$to to reset password", function ($message) use ($to) {
+                $message->to($to)->subject('SoftwareTeam4 Reset Password');
             });
             $err = Mail::failures();
             if (!count($err)) {

@@ -13,9 +13,11 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Mail;
 
+//use App\model\Facility;
+
 class FacilitiesController extends Controller
 {
-    //
+    //设备添加
     function add(Request $request)
     {
 
@@ -33,6 +35,7 @@ class FacilitiesController extends Controller
                 'start_date' => 'required',
                 'end_date' => 'required|after:start_date'
             ]);
+            //是否同一天
             if (!$this->checkDate($data['start_date'], $data['end_date'])) {
                 return redirect('/facilities/add')->withErrors(['addError' => 'failed add. Must be on the same day']);
             }
@@ -48,19 +51,20 @@ class FacilitiesController extends Controller
 
     }
 
+    //展示 /facilities 页面
     function show()
     {
-        // $this->getSessionDateTime('2019-05-31,2019-09-08', '1,09:00,10:00|3,11:00,12:00|5,14:00,16:00');
-        // $this->checkSession(2);
         $data = Facility::all();
         return view('facilities', compact('data'));
     }
 
+    // 展示 /facilities/detail
     function detail()
     {
         $id = Input::get('id');
         $fac = new Facility();
         $data = $fac->where('id', '=', $id)->get()[0];
+        // 设备是否停止预约
         $data['status'] = $this->isStopBooking($id) ? '0' : '1';
         // dd($data);
         $data['sbdstart_date'] = '';
@@ -75,9 +79,12 @@ class FacilitiesController extends Controller
         return view('facility-detail', compact('data'));
     }
 
+    // 设备信息修改
     function update(Request $request)
     {
+
         $id = Input::get('id');
+        // 如果post请求 修改操作
         if ($request->method() == 'POST') {
             $data = Input::all();
             $fac = new Facility();
@@ -95,12 +102,14 @@ class FacilitiesController extends Controller
                 return redirect("/facilities/update?id=$id")->withErrors(['updateError' => 'failed update']);
             }
         } else {
+            // 展示修改页面
             $fac = new Facility();
             $data = $fac->where('id', '=', $id)->get()[0];
             return view('facility-add', compact('data'));
         }
     }
 
+    // 设备预定修改
     function updatebookingFacili(Request $request)
     {
         $postdata = Input::all();
@@ -110,28 +119,29 @@ class FacilitiesController extends Controller
         if ($postdata['end_date'] <= $postdata['start_date']) {
             return 'The end date must be a date after start date';
         }
-
         $isSameDay = $this->isSameDay($postdata);
-        if (!$isSameDay) {
+        if (!$isSameDay) { //必须同一天
             return ' error Must be the same day';
         }
-        if ($this->isStopBooking($facid)) {
+        if ($this->isStopBooking($facid)) { //是否停止预定
             return 'error unavailable for booking';
         }
+        //是否在规定范围
         if ($this->isNotIntime($facid, $postdata)) {
+            // 课程是否已被预订
             if (!$this->checkSession($facid, $postdata)) {
                 return 'error This period has been booked by the course';
             }
+            //人数是否满额
             if (!$this->isOverbooked($facid, $postdata, 'update')) {
                 $idoremail = $postdata['unregisteredemail'];
-
+                //用户是否已预定过
                 if (!$this->checkUserBooking($idoremail, $facid, $postdata['start_date'], $postdata['end_date'], 'update')) {
                     return 'error You have booked the current time period';
                 }
                 if (FacilityBooking::find($postdata['id'])->update(['start_date' => $postdata['start_date'], 'end_date' => $postdata['end_date']])) {
                     return '1';
                 } else {
-
                     return 'failed update';
                 }
             } else {
@@ -149,6 +159,7 @@ class FacilitiesController extends Controller
         return FacilityBooking::find($id)->facilityId;
     }
 
+    //预定设备
     function bookingFacili(Request $request)
     {
         $postdata = Input::all();
@@ -165,23 +176,24 @@ class FacilitiesController extends Controller
             'end_date' => 'required|after:start_date'
         ]);
         $isSameDay = $this->isSameDay($postdata);
-        if (!$isSameDay) {
+        if (!$isSameDay) {//必须同一天
             return redirect($url)->withErrors(['addError' => 'Must be the same day']);
         }
 
-        if ($this->isStopBooking($facid)) {
+        if ($this->isStopBooking($facid)) {//是否停止预定
             return redirect($url)->withErrors(['addError' => ' unavailable for booking']);
         }
 
-        if ($this->isNotIntime($facid, $postdata)) {
-            if (!$this->isOverbooked($facid, $postdata)) {
-                if (!$this->checkSession($facid, $postdata)) {
+        if ($this->isNotIntime($facid, $postdata)) {  //是否在规定时间范围
+            if (!$this->isOverbooked($facid, $postdata)) { //人数是否满额
+                if (!$this->checkSession($facid, $postdata)) { // 设备 是否被课程预订
                     return redirect($url)->withErrors(['addError' => 'This period has been booked by the course']);
                 }
                 $idoremail = $postdata['unregisteredemail'];
                 if (!empty($postdata['userid'])) {
                     $idoremail = $postdata['userid'];
                 }
+                //用户是否已预定过
                 if (!$this->checkUserBooking($idoremail, $facid, $postdata['start_date'], $postdata['end_date'])) {
                     return redirect($url)->withErrors(['addError' => 'You have booked the current time period']);
                 }
@@ -189,10 +201,11 @@ class FacilitiesController extends Controller
                 unset($inputdata['price']);
                 unset($inputdata['uname']);
                 $inputdata['title'] = $inputdata['title'] ? $inputdata['title'] : '';
+                //判断是否添加预订成功
                 if (FacilityBooking::create($inputdata)) {
                     $emailerrmsg = $this->sendEmail($postdata);
                     if (!count($emailerrmsg)) {
-                        return redirect($url)->withErrors(['succeed'=>'Email has been sent']);
+                        return redirect($url)->withErrors(['succeed' => 'Email has been sent']);
                     } else {
                         return redirect($url)->withErrors($emailerrmsg);
                     }
@@ -208,6 +221,7 @@ class FacilitiesController extends Controller
 
         }
     }
+
 
     function dele()
     {
@@ -270,7 +284,6 @@ class FacilitiesController extends Controller
     }
 
 
-
     private function isNotIntime($facid, $postdata)
     {
         $startdate = date('H:i:s', strtotime($postdata['start_date']));
@@ -288,9 +301,14 @@ class FacilitiesController extends Controller
         } else {
             $startdate = $bpdata[0]->start_date;
             $enddate = $bpdata[0]->end_date;
-            $nowdate = date('Y-m-d H:i:s');
+            $userStartDate = Input::get('start_date');
+            $userEndDate = Input::get('end_date');
+
+            if (($userStartDate > $enddate) || ($userEndDate < $startdate)) {
+                return false;
+            }
             // dd($startdate,$enddate,$nowdate,($nowdate >= $startdate && $nowdate <= $enddate));
-            return ($nowdate >= $startdate && $nowdate <= $enddate);
+            return true;
         }
     }
 
