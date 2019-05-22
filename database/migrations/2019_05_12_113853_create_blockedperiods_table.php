@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateBlookedperiodsTable extends Migration
+class CreateBlockedperiodsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,13 @@ class CreateBlookedperiodsTable extends Migration
      */
     public function up()
     {
-         //Arwa
-         Schema::create('bloockedPeriods', function (Blueprint $table) {
+        //Arwa
+        Schema::create('blockedPeriod', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->datetime('start_date');
             $table->datetime('end_date');
-            $table->unsignedInteger('facilityid');
-            $table->foreign('facilityid')->references('id')->on('facility')->onDelete('cascade');
+            $table->unsignedInteger('userId');
+            $table->foreign('userId')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
         });
     }

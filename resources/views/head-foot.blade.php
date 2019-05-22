@@ -13,7 +13,7 @@
     <link href="./css/bootstrap.min.css" rel="stylesheet">
     <!-- 自定义css -->
     <link href="./css/main.css" rel="stylesheet">
- </head>
+</head>
 <body>
 <div class="contanier">
     <div class="header">
