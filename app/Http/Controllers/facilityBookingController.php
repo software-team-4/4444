@@ -2,6 +2,16 @@
 
 namespace App\Http\Controllers;
 
+<<<<<<< HEAD
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use MaddHatter\LaravelFullcalendar\Facades\Calendar;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Input;
+use App\facilityBooking;
+use App\blookedperiod;
+=======
 use App\blookedperiod;
 use App\model\Facility;
 use App\model\FacilityBooking;
@@ -10,6 +20,7 @@ use Calendar;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Input;
 
+>>>>>>> 406bd4f25be4da12fd43bf1576fe089cea0e5757
 
 class facilityBookingController extends Controller
 {
@@ -21,6 +32,93 @@ class facilityBookingController extends Controller
      */
     public function index()
     {
+<<<<<<< HEAD
+        // Arwa
+       // $id=2;
+         $bookings =  facilitybooking::all(); // table name in the calendarviewmodel
+        // $blockeds= bloockedperiod::all();
+    
+        $booking = [];
+        foreach($bookings as $row){
+            $enddate=$row->end_date."24:00:00";
+            $booking[] = \Calendar::event( 
+            $row->title,
+            false, // to get time not just date so can be shown in calender for specific hours
+            new \DateTime($row->start_date),
+            new \DateTime($row->end_date),
+            $row->id,
+            [
+                'color'=>$row->color,
+            ]
+            );
+        }
+       $calendar = \Calendar::addEvents($booking);
+        return view ('calendarView', compact('bookings','calendar'));  
+    }
+
+   // Arwa 
+   public function viewCalendar($id)
+   {
+       $facid=$id;
+       if ($facid<2||$facid>5)// return all bookings
+       {
+        $bookings =  facilitybooking::all();
+        $blookeds =DB::table('bloockedperiods')->get();
+       }
+       else{
+        $bookings =  facilitybooking::where('facilityId','=',$facid)->get();
+        $blookeds =DB::table('bloockedperiods')->where(['facilityID'=>$facid])->get();
+       }
+       $booking = [];
+       //retrive from blokedperiods table color=black 
+       $title = "blokedPeriod";
+       foreach ($blookeds as $row) {
+        $enddate=$row->end_date."24:00:00";
+        $booking[] = \Calendar::event( 
+        $title,
+        false, // to get time not just date so can be shown in calender for specific hours
+        new \DateTime($row->start_date),
+        new \DateTime($row->end_date),
+        $row->id,
+        [
+            'color'=>'black',
+        ]
+        );
+       }
+         
+       //retrive from facilitybooking table
+       // change the color of booking depends on the facility id 
+       $color='black';
+       if ($facid ==2){
+        $color='blue';
+       }
+       else if ($facid ==3){
+        $color='yellow';
+       }
+       else if ($facid ==4){
+        $color='red';
+       }
+       else if ($facid ==5){
+        $color='green';
+       }
+
+        foreach($bookings as $row){
+            $enddate=$row->end_date."24:00:00";
+            $booking[] = \Calendar::event( 
+            $row->title,
+            false, // to get time not just date so can be shown in calender for specific hours
+            new \DateTime($row->start_date),
+            new \DateTime($row->end_date),
+            $row->id,
+            [
+                'color'=>$color,
+            ]
+            );
+        }
+    $calendar = \Calendar::addEvents($booking);
+        return view ('bookingsCalendar', compact('bookings','calendar')); 
+   }
+=======
         $facid = Input::get('facid');
         $where = "where 1=1 ";
         /*  if (Auth::guard('user')->user()->type != '1') {
@@ -49,6 +147,7 @@ class facilityBookingController extends Controller
                 ]
             );
         }
+>>>>>>> 406bd4f25be4da12fd43bf1576fe089cea0e5757
 
       //  dd($this->getSessionCalendarEvent());
         $booking = array_merge($this->getSessionCalendarEvent(), $booking);

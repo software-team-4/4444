@@ -23,14 +23,16 @@
             <div class="row">
                    
                <div class="col-md-8 col-md-offset-2">
-                   <a href="/squashCourts" class="btn btn-success"> ADD Events</a>
-                   <a href="/editeventurl" class="btn btn-primary"> Edit Events</a>
-                   <a href="/deleteeventurl" class="btn btn-danger"> Delete Events</a>
+                   <a href="/squashCourts" class="btn btn-success"> ADD booking</a>
+                   {{-- these btns - for admin--}}
+                   <a href="/url" class="btn btn-primary"> Edit booking</a>
+                   <a href="/url" class="btn btn-danger"> Delete booking</a>
                </div>
                <div class="col-md-8 col-md-offset-2">
                     <div class="form-group">
                         <h3> select a calendar </h3>
                         <ul> 
+                            {{-- 1st element - for admin--}}
                             <li><a href="/bookingsCalendar/1" >overall Calendar</a></li>
                             <li><a href="/bookingsCalendar/2" >squash courts =2 in DB</a></li>
                             <li><a href="/bookingsCalendar/3" >Aerobics room =3 in DB</a></li>
