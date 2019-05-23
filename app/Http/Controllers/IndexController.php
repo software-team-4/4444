@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Input;
 
 class IndexController extends Controller
 {
-    //search facility or session
     function showIndex()
     {
         $key = trim(Input::get('key'));

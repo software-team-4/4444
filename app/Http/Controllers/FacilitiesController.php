@@ -65,7 +65,7 @@ class FacilitiesController extends Controller
         $fac = new Facility();
         $data = $fac->where('id', '=', $id)->get()[0];
         // 设备是否停止预约
-        $data['status'] = $this->isStopBooking($id) ? '0' : '1';
+        //$data['status'] = $this->isStopBooking($id) ? '0' : '1';
         // dd($data);
         $data['sbdstart_date'] = '';
         $data['sbdend_date'] = '';

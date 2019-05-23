@@ -36,7 +36,6 @@ class facilityBookingController extends Controller
 
         $booking = [];
         foreach ($bookings as $row) {
-            $enddate = $row->end_date . "24:00:00";
             $title = "$row->id|$row->unregisteredemail|$row->facname-$row->title";
             $booking[] = Calendar::event(
                 $title,
@@ -50,18 +49,47 @@ class facilityBookingController extends Controller
             );
         }
 
-      //  dd($this->getSessionCalendarEvent());
-        $booking = array_merge($this->getSessionCalendarEvent(), $booking);
+        //  dd($this->getSessionCalendarEvent());
+        $booking = array_merge($this->getSessionCalendarEvent($facid), $booking,$this->getBlockedPeriodCalendarEvent($facid));
         $facdata = Facility::select(['id', 'name'])->get();
         $calendar = Calendar::addEvents($booking);
         return view('booking-calendar', compact('bookings', 'calendar', 'facdata'));
     }
 
+    private function getBlockedPeriodCalendarEvent($facid){
+        $where='';
+        if($facid!='all'&&$facid!=null){
+            $where='where facilityid='.$facid;
+        }
+        $blockedPeriodData=DB::select("select bp.id,fs.name,bp.start_date,bp.end_date from facility fs RIGHT  JOIN blockedperiod bp on fs.id=bp.facilityid $where");
+        // dd($blockedPeriodData);
+        $allSessDate = array();
+        foreach ($blockedPeriodData as $value) {
+            $allSessDate[] = Calendar::event(
+                $value->name,
+                false, // to get time not just date so can be shown in calender for specific hours
+                new \DateTime($value->start_date),
+                new \DateTime($value->end_date),
+                $value->id,
+                [
+                    'color' => '#dd001b',
+                ]
+            );
+        }
+        return $allSessDate;
 
-    private function getSessionCalendarEvent()
+
+
+    }
+    private function getSessionCalendarEvent($facid)
     {
 
-        $sessdata = TrainerSession::get();
+        if($facid=='all'||$facid==null){
+            $sessdata = TrainerSession::get();
+        }else{
+            $sessdata = TrainerSession::where(['facilityid'=>$facid])->get();
+        }
+
         $allSessDate = array();
         foreach ($sessdata as $value) {
             foreach ($this->getSessionDateTime($value->date, $value->time) as $dateTime) {
@@ -94,64 +122,5 @@ class facilityBookingController extends Controller
     {
         $id = Input::get('id');
         return FacilityBooking::find($id)->delete() ? '1' : '0';
-    }
-
-    // Arwa
-    public function viewCalendar($id)
-    {
-        $facid = $id;
-        if ($facid < 2 || $facid > 5)// return all bookings
-        {
-            $bookings = facilitybooking::all();
-            $blookeds = DB::table('blockedperiod')->get();
-        } else {
-            $bookings = facilitybooking::where('facilityId', '=', $facid)->get();
-            $blookeds = DB::table('blockedperiod')->where(['facilityID' => $facid])->get();
-        }
-        $booking = [];
-        //retrive from blokedperiods table color=black
-        $title = "blokedPeriod";
-        foreach ($blookeds as $row) {
-            $enddate = $row->end_date . "24:00:00";
-            $booking[] = Calendar::event(
-                $title,
-                false, // to get time not just date so can be shown in calender for specific hours
-                new \DateTime($row->start_date),
-                new \DateTime($row->end_date),
-                $row->id,
-                [
-                    'color' => 'black',
-                ]
-            );
-        }
-
-        //retrive from facilitybooking table
-        // change the color of booking depends on the facility id
-        $color = 'black';
-        if ($facid == 2) {
-            $color = 'blue';
-        } else if ($facid == 3) {
-            $color = 'yellow';
-        } else if ($facid == 4) {
-            $color = 'red';
-        } else if ($facid == 5) {
-            $color = 'green';
-        }
-
-        foreach ($bookings as $row) {
-            $enddate = $row->end_date . "24:00:00";
-            $booking[] = Calendar::event(
-                $row->title,
-                false, // to get time not just date so can be shown in calender for specific hours
-                new \DateTime($row->start_date),
-                new \DateTime($row->end_date),
-                $row->id,
-                [
-                    'color' => $color,
-                ]
-            );
-        }
-        $calendar = Calendar::addEvents($booking);
-        return view('bookingsCalendar', compact('bookings', 'calendar'));
     }
 }
