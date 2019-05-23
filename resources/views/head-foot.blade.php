@@ -1,25 +1,28 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
+<!doctype html>
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible"
           content="IE=edge">
     <meta name="viewport"
           content="width=device-width, initial-scale=1">
-    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
-    <title>模板</title>
+    <title>SoftwareTeam4</title>
 
     <!-- Bootstrap -->
-    <link href="./css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
     <!-- 自定义css -->
-    <link href="./css/main.css" rel="stylesheet">
+    <link href="/css/main.css" rel="stylesheet">
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/moment.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/bootstrap-datetimepicker.min.js"></script>
 </head>
 <body>
 <div class="contanier">
     <div class="header">
         <div class="left">
             <div class="img">
-                <img src="./img/head1.png"
+                <img src="/img/head1.png"
                      alt=""
                      style="margin-left: 20px">
             </div>
@@ -37,7 +40,7 @@
             </div>
         </div>
         <div class="right">
-            <img src="./img/head2.png"
+            <img src="/img/head2.png"
                  alt=""
                  style="margin:20px 20px 0 0">
         </div>
@@ -96,18 +99,39 @@
         </ul>
     </div>
 </div>
-<!-- jQuery (Bootstrap 的所有 JavaScript 插件都依赖 jQuery，所以必须放在前边) -->
-<script src="./js/jquery.min.js"></script>
-<!-- 加载 Bootstrap 的所有 JavaScript 插件。你也可以根据需要只加载单个插件。 -->
-<script src="./js/bootstrap.min.js"></script>
+
+
+
+
+
+
+
+@yield('facilityAdd')
+@yield('facilityNoBooking')
+@yield('facilityBooking')
+@yield('courseAdd')
+<style>
+
+</style>
 <script>
     $('#listsele>li').each(function (key, val) {
         var pathname = $(val).find('a').attr('href');
         if (pathname[0] != '/') pathname = '/' + pathname;
-        if(window.location.pathname==pathname){
-            $(this).html('<strong>'+$(val).find('a').text()+'</strong>')
+        if (window.location.pathname.split('/')[1]== pathname.split('/')[1]) {
+            $(val).find('a').css('color','black')
         }
     })
+
+    @if(count($errors)>0)
+        var allerror = '';
+        @foreach($errors->all() as $error)
+                allerror += "{{$error}}\r\n";
+        @endforeach
+        alert(allerror);
+    @endif
+
+
+
 </script>
 </body>
 </html>

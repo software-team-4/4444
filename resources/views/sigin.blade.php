@@ -3,7 +3,7 @@
     <div class="right col-sm-9">
         <div class="right-content">
             <h3 style="padding-left: 20px">
-                Sign in
+                Sign up
             </h3>
             <div class="row"
                  style="margin-top: 20px;">
@@ -49,10 +49,10 @@
                         </div>
                         <div class="form-group">
                             <label for="name"
-                                   class="col-sm-3 control-label">phoneForTainer</label>
+                                   class="col-sm-3 control-label">Phone</label>
                             <div class="col-sm-9">
                                 <input type="number" maxlength="11" class="form-control" name="phone"
-                                       placeholder="phoneForTainer">
+                                       placeholder="Phone">
                             </div>
                         </div>
                         <div class="form-group">
@@ -62,9 +62,9 @@
                                 {{--1=admin , 2 =trainer, 3 =student= 4= staff, 5= other--}}
                                 <select id="Identity" class="form-control" name="type">
                                     {{--<option value="1">admin</option>--}}
-                                    <option value="2">Coach</option>
-                                    <option value="3">Students</option>
-                                    <option value="4">Faculty</option>
+                                    <option value="2">Trainer</option>
+                                    <option value="3">Student</option>
+                                    <option value="4">Staff</option>
                                     <option value="5">People outside school</option>
                                 </select>
                             </div>
@@ -73,7 +73,7 @@
                             <div class="col-sm-offset-3 col-sm-9">
                                 <button type="submit"
                                         class="btn btn-default"
-                                        style="background: #742e68;color: #ffffff">Sign in
+                                        style="background: #742e68;color: #ffffff">Sign up
                                 </button>
                             </div>
                         </div>

@@ -7,46 +7,18 @@
                 Facilities
             </h2>
             <div class="row facilities-wrapper">
+                @foreach($data as $item=>$value)
                 <div class="col-sm-3 col-xs-4">
                     <div class="facility-wrapper"
-                         onmousedown="window.location.href = '/facility-detail'">
-                        <img src="./img/test.jpg"
+                         onmousedown="window.location.href = '/facilities/detail?id={{$value->id}}'">
+                        <img src="{{ltrim($value->imagepath,'.')}}"
                              alt="">
                         <div class="facility-name">
-                            facility-name
+                            {{$value->name}}
                         </div>
                     </div>
                 </div>
-                <div class="col-sm-3 col-xs-4">
-                    <div class="facility-wrapper">
-                        <img src="./img/test.jpg"
-                             alt="">
-                    </div>
-                </div>
-                <div class="col-sm-3 col-xs-4">
-                    <div class="facility-wrapper">
-                        <img src="./img/test.jpg"
-                             alt="">
-                    </div>
-                </div>
-                <div class="col-sm-3 col-xs-4">
-                    <div class="facility-wrapper">
-                        <img src="./img/test.jpg"
-                             alt="">
-                    </div>
-                </div>
-                <div class="col-sm-3 col-xs-4">
-                    <div class="facility-wrapper">
-                        <img src="./img/test.jpg"
-                             alt="">
-                    </div>
-                </div>
-                <div class="col-sm-3 col-xs-4">
-                    <div class="facility-wrapper">
-                        <img src="./img/test.jpg"
-                             alt="">
-                    </div>
-                </div>
+                @endforeach
             </div>
         </div>
     </div>
